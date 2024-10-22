@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  userTypes    UserTypes     @default(REGULAR)
+  plan         Plan?         @relation(fields: [planId], references: [id])
+  planId       Int?
+  searches     Search[]
+  createdAt    DateTime      @default(now())
+  subscription Subscription? // 1:1 relation with Subscription
+}
+
+model Search {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  query     String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Plan {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique // Name of the plan ('Basic', 'Moderate', etc.)
+  price        Float // Plan price
+  searchLimit  Int // Max searches allowed (e.g., 1, 10)
+  durationDays Int // Plan duration in days
+  users        User[] // Users with this plan
+  Subscription Subscription[]
+}
+
+model Subscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  planId    Int
+  startDate DateTime @default(now()) // Subscription start date
+  endDate   DateTime // Subscription end date
+  isActive  Boolean  @default(true) // Indicates if the plan is currently active
+  user      User     @relation(fields: [userId], references: [id])
+  plan      Plan     @relation(fields: [planId], references: [id])
+}
+
+enum UserTypes {
+  REGULAR
+  PRO
+}

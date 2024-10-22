@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+ // Adjust the import path as necessary
 import "./globals.css";
+
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ClientSessionProvider from "./ClientSessionProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -20,15 +25,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  session, // Accept session as a prop
 }: Readonly<{
   children: React.ReactNode;
+  session: any; // Adjust the type according to your session structure
 }>) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ClientSessionProvider session={session}>
+          {" "}
+          {/* Use the ClientSessionProvider here */}
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </ClientSessionProvider>
       </body>
     </html>
   );
